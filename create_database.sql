@@ -79,9 +79,9 @@ CREATE TABLE IF NOT EXISTS pricing (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Insert default pricing (per sheet, varies by duplex mode)
--- Pricing: 8.5x11 single=$0.005, duplex=$0.10 | 11x17 single=$0.10, duplex=$0.20
+-- Pricing: 8.5x11 single=$0.05, duplex=$0.10 | 11x17 single=$0.10, duplex=$0.20
 INSERT INTO pricing (papersize, price_per_page, description) VALUES
-('85_11_single', 0.005, '8.5x11 Letter - Single Sided'),
+('85_11_single', 0.05, '8.5x11 Letter - Single Sided'),
 ('85_11_duplex', 0.10, '8.5x11 Letter - Double Sided'),
 ('11_17_single', 0.10, '11x17 Tabloid - Single Sided'),
 ('11_17_duplex', 0.20, '11x17 Tabloid - Double Sided')
