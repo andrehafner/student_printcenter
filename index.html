@@ -395,6 +395,9 @@
                     <label class="form-label" for="file">Upload File</label>
                     <input type="file" name="file" id="file" accept=".pdf" required>
                     <div class="form-help">PDF files only, maximum 100MB</div>
+                    <div id="page-count-display" style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 6px; display: none;">
+                        <span style="color: #93c5fd;">Pages detected: <strong id="detected-pages">0</strong></span>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -551,7 +554,12 @@
         </div>
     </div>
 
+    <!-- PDF.js for page counting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
+        // Set PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
         // Pricing constants (per sheet, varies by paper size and duplex mode)
         // 8.5x11 single=$0.05, duplex=$0.10 | 11x17 single=$0.10, duplex=$0.20
         const PRICING = {
@@ -570,9 +578,13 @@
         let paymentConfirmed = false;
         let nautConnectedAddress = null;
         let nautBrickBalance = 0;
+        let detectedPageCount = 1; // Default to 1 page
 
         // Initialize form handlers
         document.addEventListener('DOMContentLoaded', function() {
+            // File input handler for PDF page counting
+            document.getElementById('file').addEventListener('change', handleFileSelect);
+
             // Billing method change handler
             const billingRadios = document.querySelectorAll('input[name="billingmethod"]');
             billingRadios.forEach(radio => {
@@ -598,6 +610,71 @@
             // Initial calculation
             calculatePrice();
         });
+
+        // Handle PDF file selection and count pages
+        async function handleFileSelect(e) {
+            const file = e.target.files[0];
+            const pageCountDisplay = document.getElementById('page-count-display');
+            const detectedPagesEl = document.getElementById('detected-pages');
+
+            if (!file) {
+                pageCountDisplay.style.display = 'none';
+                detectedPageCount = 1;
+                calculatePrice();
+                return;
+            }
+
+            // Check if it's a PDF
+            if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                pageCountDisplay.style.display = 'block';
+                pageCountDisplay.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+                pageCountDisplay.style.background = 'rgba(239, 68, 68, 0.1)';
+                detectedPagesEl.parentElement.innerHTML = '<span style="color: #f87171;">Error: Please select a PDF file</span>';
+                detectedPageCount = 1;
+                calculatePrice();
+                return;
+            }
+
+            // Check file size (25MB limit)
+            if (file.size > 25 * 1024 * 1024) {
+                pageCountDisplay.style.display = 'block';
+                pageCountDisplay.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+                pageCountDisplay.style.background = 'rgba(239, 68, 68, 0.1)';
+                detectedPagesEl.parentElement.innerHTML = '<span style="color: #f87171;">Error: File exceeds 25MB limit</span>';
+                detectedPageCount = 1;
+                calculatePrice();
+                return;
+            }
+
+            // Show loading state
+            pageCountDisplay.style.display = 'block';
+            pageCountDisplay.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+            pageCountDisplay.style.background = 'rgba(59, 130, 246, 0.1)';
+            detectedPagesEl.parentElement.innerHTML = '<span style="color: #93c5fd;">Counting pages...</span>';
+
+            try {
+                // Read file as ArrayBuffer
+                const arrayBuffer = await file.arrayBuffer();
+
+                // Load PDF with PDF.js
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                detectedPageCount = pdf.numPages;
+
+                // Update display
+                detectedPagesEl.parentElement.innerHTML = '<span style="color: #93c5fd;">Pages detected: <strong id="detected-pages">' + detectedPageCount + '</strong></span>';
+
+                // Recalculate price with actual page count
+                calculatePrice();
+
+            } catch (error) {
+                console.error('Error reading PDF:', error);
+                pageCountDisplay.style.borderColor = 'rgba(245, 158, 11, 0.5)';
+                pageCountDisplay.style.background = 'rgba(245, 158, 11, 0.1)';
+                detectedPagesEl.parentElement.innerHTML = '<span style="color: #fbbf24;">Could not read PDF pages. Price estimate may vary.</span>';
+                detectedPageCount = 1;
+                calculatePrice();
+            }
+        }
 
         function handleBillingMethodChange(e) {
             const nautilusSection = document.getElementById('nautilus-section');
@@ -652,8 +729,8 @@
                 pricePerSheet = PRICING[pricingKey] || 0.10;
             }
 
-            // Estimate: assume 1 page for now (actual calculated on server)
-            const estimatedPrice = pricePerSheet * copies;
+            // Calculate price: price per sheet * copies * pages
+            const estimatedPrice = pricePerSheet * copies * detectedPageCount;
 
             document.getElementById('price-display').textContent = estimatedPrice.toFixed(2);
 
