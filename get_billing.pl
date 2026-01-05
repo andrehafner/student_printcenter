@@ -11,7 +11,7 @@ use strict;
 use warnings;
 
 # Database Configuration
-my $db = "pc";
+my $db = "student_printing";
 my $host = "localhost";
 my $user = "root";
 my $dbpasswordretreive = 'E:/dbaccess/employer.txt';

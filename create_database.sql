@@ -6,13 +6,13 @@
 --   Host: localhost
 --   User: root
 --   Password: (stored in E:/dbaccess/employer.txt)
---   Database: pc
+--   Database: student_printing
 -- ============================================
 
 -- Create database if not exists
-CREATE DATABASE IF NOT EXISTS pc CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS student_printing CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-USE pc;
+USE student_printing;
 
 -- ============================================
 -- Main Print Jobs Table
@@ -78,10 +78,13 @@ CREATE TABLE IF NOT EXISTS pricing (
     UNIQUE KEY unique_papersize (papersize)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Insert default pricing (based on typical university print costs)
+-- Insert default pricing (per sheet, varies by duplex mode)
+-- Pricing: 8.5x11 single=$0.005, duplex=$0.10 | 11x17 single=$0.10, duplex=$0.20
 INSERT INTO pricing (papersize, price_per_page, description) VALUES
-('85_11', 0.10, '8.5x11 Letter - Black & White'),
-('11_17', 0.20, '11x17 Tabloid - Black & White')
+('85_11_single', 0.005, '8.5x11 Letter - Single Sided'),
+('85_11_duplex', 0.10, '8.5x11 Letter - Double Sided'),
+('11_17_single', 0.10, '11x17 Tabloid - Single Sided'),
+('11_17_duplex', 0.20, '11x17 Tabloid - Double Sided')
 ON DUPLICATE KEY UPDATE price_per_page = VALUES(price_per_page);
 
 -- ============================================

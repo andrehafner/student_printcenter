@@ -545,10 +545,13 @@
     </div>
 
     <script>
-        // Pricing constants (per page)
+        // Pricing constants (per sheet, varies by paper size and duplex mode)
+        // 8.5x11 single=$0.005, duplex=$0.10 | 11x17 single=$0.10, duplex=$0.20
         const PRICING = {
-            '85_11': 0.10,
-            '11_17': 0.20
+            '85_11_single': 0.005,
+            '85_11_duplex': 0.10,
+            '11_17_single': 0.10,
+            '11_17_duplex': 0.20
         };
         const BRICK_MULTIPLIER = 9; // USD to BRICK conversion
 
@@ -568,7 +571,7 @@
             });
 
             // Price calculation handlers
-            const priceInputs = document.querySelectorAll('input[name="papersize"], input[name="copies"]');
+            const priceInputs = document.querySelectorAll('input[name="papersize"], input[name="copies"], input[name="duplex"]');
             priceInputs.forEach(input => {
                 input.addEventListener('change', calculatePrice);
                 input.addEventListener('input', calculatePrice);
@@ -627,19 +630,22 @@
 
         function calculatePrice() {
             const papersize = document.querySelector('input[name="papersize"]:checked');
+            const duplexMode = document.querySelector('input[name="duplex"]:checked');
             const copiesInput = document.getElementById('copies');
 
             let copies = parseInt(copiesInput.value) || 1;
             if (copies < 1) copies = 1;
             if (copies > 99) copies = 99;
 
-            let pricePerPage = 0.10; // default
-            if (papersize) {
-                pricePerPage = PRICING[papersize.value] || 0.10;
+            // Build pricing key: papersize_duplexmode (e.g., "85_11_single")
+            let pricePerSheet = 0.10; // default
+            if (papersize && duplexMode) {
+                const pricingKey = papersize.value + '_' + duplexMode.value;
+                pricePerSheet = PRICING[pricingKey] || 0.10;
             }
 
             // Estimate: assume 1 page for now (actual calculated on server)
-            const estimatedPrice = pricePerPage * copies;
+            const estimatedPrice = pricePerSheet * copies;
 
             document.getElementById('price-display').textContent = estimatedPrice.toFixed(2);
 

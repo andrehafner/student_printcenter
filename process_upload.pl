@@ -11,7 +11,7 @@ use LWP::UserAgent;
 # ============================================
 # Database Configuration
 # ============================================
-my $db = "pc";
+my $db = "student_printing";
 my $host = "localhost";
 my $user = "root";
 my $dbpasswordretreive = 'E:/dbaccess/employer.txt';
@@ -24,10 +24,13 @@ my $password = do {
 };
 chomp($password);
 
-# Pricing configuration (per page)
+# Pricing configuration (per sheet, varies by paper size and duplex mode)
+# 8.5x11 single=$0.005, duplex=$0.10 | 11x17 single=$0.10, duplex=$0.20
 my %PRICING = (
-    '85_11' => 0.10,
-    '11_17' => 0.20
+    '85_11_single' => 0.005,
+    '85_11_duplex' => 0.10,
+    '11_17_single' => 0.10,
+    '11_17_duplex' => 0.20
 );
 my $BRICK_MULTIPLIER = 9;
 
@@ -156,9 +159,10 @@ my $cmd = '-set option:totpages %[n] -delete 1--1 -format "%[totpages]" info:';
 my $pagecount = qx(convert "$mainDIR/$subDIR" $cmd);
 $pagecount = int($pagecount) || 1;
 
-# Calculate print total
-my $price_per_page = $PRICING{$papersize} || 0.10;
-my $printtotal = $price_per_page * $copies * $pagecount;
+# Calculate print total based on paper size AND duplex mode
+my $pricing_key = "${papersize}_${duplex}";
+my $price_per_sheet = $PRICING{$pricing_key} || 0.10;
+my $printtotal = $price_per_sheet * $copies * $pagecount;
 $printtotal = sprintf("%.2f", $printtotal);
 
 # Calculate BRICK amount for Nautilus payments
