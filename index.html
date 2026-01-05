@@ -875,19 +875,26 @@
 
                     connectBtn.style.display = 'none';
 
-                    // Show pay button if balance is sufficient
-                    if (nautBrickBalance >= brickAmount && ergBalance >= 0.01) {
+                    // Update button states FIRST
+                    updateSubmitButton();
+
+                    // Recalculate price to ensure BRICK amount is current
+                    calculatePrice();
+
+                    // Re-read BRICK amount after recalculation
+                    const currentBrickAmount = parseInt(document.getElementById('nautilus_brick_amount').value);
+
+                    // Show pay button if balance is sufficient - do this AFTER updateSubmitButton
+                    if (nautBrickBalance >= currentBrickAmount && ergBalance >= 0.01) {
                         document.getElementById('pay-section').style.display = 'block';
-                        // Explicitly enable the pay button
+                        // Explicitly enable the pay button AFTER updateSubmitButton so it doesn't get disabled
                         var payBtn = document.getElementById('pay-btn');
                         payBtn.disabled = false;
                         payBtn.style.opacity = '1';
+                        payBtn.style.cursor = 'pointer';
                     } else {
                         paymentStatus.innerHTML += '<br><span style="color: #ef4444;">Insufficient balance!</span>';
                     }
-
-                    // Update button states now that wallet is connected
-                    updateSubmitButton();
                 })
                 .catch(function(err) {
                     console.error('Wallet connection error:', err);
