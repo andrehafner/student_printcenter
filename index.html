@@ -782,30 +782,37 @@
         }
 
         // Lock price-affecting fields after Nautilus payment is made
+        // IMPORTANT: Don't use disabled=true as it prevents form submission!
+        // Use pointer-events and visual styling instead.
         function lockPriceFields() {
-            // Lock copies field
+            // Lock copies field (use readonly for text inputs)
             const copiesInput = document.getElementById('copies');
-            copiesInput.disabled = true;
+            copiesInput.readOnly = true;
             copiesInput.style.opacity = '0.6';
             copiesInput.style.cursor = 'not-allowed';
 
-            // Lock paper size options
+            // Lock paper size options (use pointer-events, not disabled)
             document.querySelectorAll('input[name="papersize"]').forEach(radio => {
-                radio.disabled = true;
+                radio.style.pointerEvents = 'none';
+                radio.parentElement.style.opacity = '0.6';
+                radio.parentElement.style.pointerEvents = 'none';
             });
 
             // Lock duplex options
             document.querySelectorAll('input[name="duplex"]').forEach(radio => {
-                radio.disabled = true;
+                radio.style.pointerEvents = 'none';
+                radio.parentElement.style.opacity = '0.6';
+                radio.parentElement.style.pointerEvents = 'none';
             });
 
-            // Lock printer options (affects nothing price-wise but prevents confusion)
+            // Lock printer options
             document.querySelectorAll('input[name="printer"]').forEach(radio => {
-                radio.disabled = true;
+                radio.style.pointerEvents = 'none';
+                radio.parentElement.style.opacity = '0.6';
+                radio.parentElement.style.pointerEvents = 'none';
             });
 
-            // Lock file input visually - can't change file after payment
-            // Note: Don't use disabled=true as it prevents form submission!
+            // Lock file input visually
             const fileInput = document.getElementById('file');
             fileInput.style.opacity = '0.6';
             fileInput.style.pointerEvents = 'none';
