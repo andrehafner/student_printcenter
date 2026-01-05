@@ -434,7 +434,7 @@
                     <div class="brick-label">Amount Due</div>
                     <div class="brick-amount"><span id="brick-amount-display">0</span> BRICK</div>
 
-                    <div class="wallet-label">Send BRICK tokens to this address:</div>
+                    <div class="wallet-label">Treasury Address:</div>
                     <div class="wallet-address" id="wallet-address">
                         9gjX7hZQHzRG7iHC8yf2Hk9miPxd8QPrthSVMQuGSGwdXAgTBht
                     </div>
@@ -445,6 +445,13 @@
 
                     <div id="payment-status" class="payment-status pending hidden">
                         Waiting for payment confirmation...
+                    </div>
+
+                    <!-- Pay button section (shown after wallet connection) -->
+                    <div id="pay-section" style="display: none; margin-top: 1rem;">
+                        <button type="button" id="pay-btn" onclick="nautSubmitPayment()" style="width: 100%; padding: 0.875rem 1.5rem; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                            Pay Now
+                        </button>
                     </div>
 
                     <input type="hidden" name="nautilus_brick_amount" id="nautilus_brick_amount" value="0">
@@ -555,12 +562,14 @@
         };
         const BRICK_MULTIPLIER = 9; // USD to BRICK conversion
 
-        // Nautilus wallet address
-        const NAUTILUS_WALLET = '9gjX7hZQHzRG7iHC8yf2Hk9miPxd8QPrthSVMQuGSGwdXAgTBht';
-        const NAUTILUS_TOKEN_ID = '6ae91b0b309752896eb14025358889661da7e2078d89b4669dceef0a3d125a33';
+        // Nautilus blockchain configuration
+        const NAUT_BRICK_TOKEN_ID = '6ae91b0b309752896eb14025358889661da7e2078d89b4669dceef0a3d125a33';
+        const NAUT_TREASURY_ADDRESS = '9gjX7hZQHzRG7iHC8yf2Hk9miPxd8QPrthSVMQuGSGwdXAgTBht';
 
         let isNautilusPaymentRequired = false;
         let paymentConfirmed = false;
+        let nautConnectedAddress = null;
+        let nautBrickBalance = 0;
 
         // Initialize form handlers
         document.addEventListener('DOMContentLoaded', function() {
@@ -609,7 +618,6 @@
         }
 
         function handlePrinterChange(e) {
-            const duplexOption = document.getElementById('duplex_option');
             const duplexDouble = document.getElementById('duplex_double');
             const duplexSingle = document.getElementById('duplex_single');
             const paper11x17 = document.getElementById('paper_tabloid');
@@ -667,79 +675,154 @@
             }
         }
 
-        async function connectNautilusWallet() {
+        function connectNautilusWallet() {
+            console.log('Connect wallet button clicked');
             const connectBtn = document.getElementById('connect-wallet-btn');
             const paymentStatus = document.getElementById('payment-status');
-            const brickAmount = parseInt(document.getElementById('nautilus_brick_amount').value);
 
-            // Check if Nautilus wallet is installed
-            if (typeof ergoConnector === 'undefined' || !ergoConnector.nautilus) {
-                alert('Nautilus Wallet not detected. Please install the Nautilus browser extension.');
+            paymentStatus.classList.remove('hidden');
+            paymentStatus.classList.remove('confirmed', 'error');
+            paymentStatus.classList.add('pending');
+            paymentStatus.textContent = 'Connecting...';
+
+            // Check if Nautilus is available
+            if (typeof window.ergoConnector === 'undefined' || !window.ergoConnector.nautilus) {
+                alert('Please install Nautilus wallet extension first!');
                 window.open('https://chrome.google.com/webstore/detail/nautilus-wallet/gjlmehlldlphhljhpnlddaodbjjcchai', '_blank');
+                paymentStatus.classList.add('error');
+                paymentStatus.textContent = 'Nautilus wallet not found. Please install the extension.';
                 return;
             }
 
-            try {
-                connectBtn.disabled = true;
-                connectBtn.textContent = 'Connecting...';
+            console.log('Nautilus extension found, attempting connection...');
 
-                // Connect to Nautilus
-                const connected = await ergoConnector.nautilus.connect();
+            window.ergoConnector.nautilus.connect()
+                .then(function(connected) {
+                    if (connected) {
+                        console.log('Nautilus connected successfully');
+                        return ergo.get_change_address();
+                    } else {
+                        throw new Error('Connection rejected by user');
+                    }
+                })
+                .then(function(address) {
+                    nautConnectedAddress = address;
+                    console.log('Got address:', address);
+                    return ergo.get_utxos();
+                })
+                .then(function(utxos) {
+                    nautBrickBalance = 0;
+                    var ergBalance = 0;
 
-                if (!connected) {
-                    throw new Error('Failed to connect to Nautilus wallet');
-                }
+                    for (var i = 0; i < utxos.length; i++) {
+                        var utxo = utxos[i];
+                        ergBalance += parseInt(utxo.value);
+                        if (utxo.assets) {
+                            for (var j = 0; j < utxo.assets.length; j++) {
+                                var asset = utxo.assets[j];
+                                if (asset.tokenId === NAUT_BRICK_TOKEN_ID) {
+                                    nautBrickBalance += parseInt(asset.amount);
+                                }
+                            }
+                        }
+                    }
 
-                paymentStatus.classList.remove('hidden');
-                paymentStatus.classList.remove('confirmed', 'error');
-                paymentStatus.classList.add('pending');
-                paymentStatus.textContent = 'Wallet connected. Preparing transaction...';
+                    ergBalance = ergBalance / 1e9;
+                    const brickAmount = parseInt(document.getElementById('nautilus_brick_amount').value);
 
-                // Get the wallet API
-                const wallet = await ergoConnector.nautilus.getContext();
+                    paymentStatus.classList.remove('pending');
+                    paymentStatus.classList.add('confirmed');
+                    paymentStatus.innerHTML = '<strong>Wallet Connected!</strong><br>' +
+                        'Address: ' + nautConnectedAddress.substring(0, 12) + '...<br>' +
+                        'ERG: ' + ergBalance.toFixed(4) + '<br>' +
+                        'BRICK: ' + nautBrickBalance.toLocaleString();
 
-                // Build and submit transaction
-                // This sends BRICK tokens to our payment address
-                const txRequest = {
-                    requests: [{
-                        address: NAUTILUS_WALLET,
-                        assets: [{
-                            tokenId: NAUTILUS_TOKEN_ID,
-                            amount: brickAmount.toString()
-                        }]
-                    }]
-                };
+                    connectBtn.style.display = 'none';
 
-                paymentStatus.textContent = 'Please confirm the transaction in your Nautilus wallet...';
+                    // Show pay button if balance is sufficient
+                    if (nautBrickBalance >= brickAmount && ergBalance >= 0.01) {
+                        document.getElementById('pay-section').style.display = 'block';
+                    } else {
+                        paymentStatus.innerHTML += '<br><span style="color: #ef4444;">Insufficient balance!</span>';
+                    }
+                })
+                .catch(function(err) {
+                    console.error('Wallet connection error:', err);
+                    paymentStatus.classList.remove('pending');
+                    paymentStatus.classList.add('error');
+                    paymentStatus.textContent = 'Error: ' + err.message;
+                });
+        }
 
-                // Sign and submit transaction
-                const unsignedTx = await wallet.sign_tx(txRequest);
-                const txId = await wallet.submit_tx(unsignedTx);
+        function nautSubmitPayment() {
+            const payBtn = document.getElementById('pay-btn');
+            const paymentStatus = document.getElementById('payment-status');
+            const brickAmount = parseInt(document.getElementById('nautilus_brick_amount').value);
 
-                if (txId) {
-                    // Payment successful
+            payBtn.disabled = true;
+            payBtn.style.opacity = '0.5';
+            paymentStatus.classList.remove('confirmed', 'error');
+            paymentStatus.classList.add('pending');
+            paymentStatus.textContent = 'Loading SDK...';
+
+            // Dynamically load Fleet SDK
+            import('https://cdn.jsdelivr.net/npm/@fleet-sdk/core@0.6.1/+esm')
+                .then(function(module) {
+                    var TransactionBuilder = module.TransactionBuilder;
+                    var OutputBuilder = module.OutputBuilder;
+
+                    paymentStatus.textContent = 'Building transaction...';
+
+                    return ergo.get_current_height().then(function(currentHeight) {
+                        return ergo.get_utxos().then(function(utxos) {
+                            var outputBuilder = new OutputBuilder('1000000', NAUT_TREASURY_ADDRESS);
+                            outputBuilder.addTokens({
+                                tokenId: NAUT_BRICK_TOKEN_ID,
+                                amount: brickAmount.toString()
+                            });
+
+                            var unsignedTx = new TransactionBuilder(currentHeight)
+                                .from(utxos)
+                                .to(outputBuilder)
+                                .sendChangeTo(nautConnectedAddress)
+                                .payMinFee()
+                                .build()
+                                .toEIP12Object();
+
+                            paymentStatus.textContent = 'Please sign in Nautilus wallet...';
+                            return ergo.sign_tx(unsignedTx);
+                        });
+                    });
+                })
+                .then(function(signedTx) {
+                    paymentStatus.textContent = 'Submitting transaction...';
+                    return ergo.submit_tx(signedTx);
+                })
+                .then(function(txId) {
+                    console.log('Transaction submitted:', txId);
+
+                    // Payment successful!
                     paymentConfirmed = true;
                     document.getElementById('blockchain_payment_confirmed').value = 'yes';
                     document.getElementById('blockchain_txid').value = txId;
 
                     paymentStatus.classList.remove('pending');
                     paymentStatus.classList.add('confirmed');
-                    paymentStatus.textContent = 'Payment confirmed! Transaction ID: ' + txId.substring(0, 16) + '...';
+                    paymentStatus.innerHTML = '<strong>Payment Successful!</strong><br>' +
+                        'TX: <a href="https://explorer.ergoplatform.com/en/transactions/' + txId + '" target="_blank" style="color: #60a5fa;">' +
+                        txId.substring(0, 20) + '...</a>';
 
-                    connectBtn.textContent = 'Payment Complete';
+                    document.getElementById('pay-section').style.display = 'none';
                     updateSubmitButton();
-                }
-
-            } catch (error) {
-                console.error('Nautilus payment error:', error);
-
-                paymentStatus.classList.remove('hidden', 'pending');
-                paymentStatus.classList.add('error');
-                paymentStatus.textContent = 'Payment failed: ' + error.message;
-
-                connectBtn.disabled = false;
-                connectBtn.textContent = 'Retry Payment';
-            }
+                })
+                .catch(function(err) {
+                    console.error('Payment error:', err);
+                    paymentStatus.classList.remove('pending');
+                    paymentStatus.classList.add('error');
+                    paymentStatus.textContent = 'Error: ' + err.message;
+                    payBtn.disabled = false;
+                    payBtn.style.opacity = '1';
+                });
         }
 
         function handleFormSubmit(e) {
