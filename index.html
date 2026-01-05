@@ -804,11 +804,12 @@
                 radio.disabled = true;
             });
 
-            // Lock file input - can't change file after payment
+            // Lock file input visually - can't change file after payment
+            // Note: Don't use disabled=true as it prevents form submission!
             const fileInput = document.getElementById('file');
-            fileInput.disabled = true;
             fileInput.style.opacity = '0.6';
-            fileInput.style.cursor = 'not-allowed';
+            fileInput.style.pointerEvents = 'none';
+            fileInput.parentElement.style.pointerEvents = 'none';
 
             // Add visual indicator that fields are locked
             const priceEstimate = document.getElementById('price-estimate');
