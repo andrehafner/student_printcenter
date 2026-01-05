@@ -157,6 +157,26 @@
             font-weight: 500;
         }
 
+        .radio-option.blockchain-option {
+            border-color: rgba(245, 158, 11, 0.4);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .radio-option.blockchain-option:hover {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .blockchain-badge {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-left: 0.5rem;
+            font-weight: 600;
+        }
+
         .alert {
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid rgba(239, 68, 68, 0.3);
@@ -193,20 +213,163 @@
             box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.2);
         }
 
+        .submit-button:disabled {
+            background: linear-gradient(135deg, #475569 0%, #334155 100%);
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.7;
+        }
+
         .coming-soon {
             opacity: 0.6;
             font-style: italic;
+        }
+
+        /* Nautilus Payment Section */
+        #nautilus-section {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 12px;
+        }
+
+        #nautilus-section.active {
+            display: block;
+        }
+
+        .nautilus-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .nautilus-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 0.75rem;
+        }
+
+        .nautilus-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f59e0b;
+        }
+
+        .brick-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #f59e0b;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .brick-label {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .wallet-address {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            word-break: break-all;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+
+        .wallet-label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+        }
+
+        .connect-wallet-btn {
+            width: 100%;
+            padding: 0.875rem 1.5rem;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 0.75rem;
+        }
+
+        .connect-wallet-btn:hover {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            transform: translateY(-1px);
+        }
+
+        .connect-wallet-btn:disabled {
+            background: linear-gradient(135deg, #475569 0%, #334155 100%);
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .payment-status {
+            text-align: center;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .payment-status.pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+
+        .payment-status.confirmed {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+        }
+
+        .payment-status.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .price-estimate {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .price-label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .price-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #60a5fa;
+        }
+
+        .hidden {
+            display: none !important;
         }
 
         @media (max-width: 768px) {
             .container {
                 padding: 1rem;
             }
-            
+
             .main-title {
                 font-size: 2rem;
             }
-            
+
             .form-container {
                 padding: 1.5rem;
             }
@@ -227,7 +390,7 @@
                 This system will ONLY accept PDF files with a maximum size of 25MB.
             </div>
 
-            <form action="process_upload.pl" method="post" enctype="multipart/form-data">
+            <form id="printForm" action="process_upload.pl" method="post" enctype="multipart/form-data">
                 <div class="form-group">
                     <label class="form-label" for="file">Upload File</label>
                     <input type="file" name="file" id="file" accept=".pdf" required>
@@ -236,8 +399,57 @@
 
                 <div class="form-group">
                     <label class="form-label" for="idnumber">Student ID Number</label>
-                    <input type="text" name="idnumber" id="idnumber" maxlength="7" pattern="[0-9]{7}" required>
+                    <input type="text" name="idnumber" id="idnumber" maxlength="7" pattern="[0-9]{7}" required placeholder="1234567">
                     <div class="form-help">Enter your 7-digit Cornell ID number</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Billing Method</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" value="Bursar" name="billingmethod" id="billing_bursar" required checked>
+                            <label for="billing_bursar">Bursar (Charge to Student Account)</label>
+                        </div>
+                        <div class="radio-option blockchain-option">
+                            <input type="radio" value="Nautilus" name="billingmethod" id="billing_nautilus">
+                            <label for="billing_nautilus">
+                                Nautilus Wallet
+                                <span class="blockchain-badge">BRICK Token</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-help">Select how you want to pay for your print job</div>
+                </div>
+
+                <!-- Nautilus Payment Section (Hidden by default) -->
+                <div id="nautilus-section">
+                    <div class="nautilus-header">
+                        <svg class="nautilus-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="#f59e0b" stroke-width="2"/>
+                            <path d="M12 6v6l4 2" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span class="nautilus-title">Nautilus Blockchain Payment</span>
+                    </div>
+
+                    <div class="brick-label">Amount Due</div>
+                    <div class="brick-amount"><span id="brick-amount-display">0</span> BRICK</div>
+
+                    <div class="wallet-label">Send BRICK tokens to this address:</div>
+                    <div class="wallet-address" id="wallet-address">
+                        9gjX7hZQHzRG7iHC8yf2Hk9miPxd8QPrthSVMQuGSGwdXAgTBht
+                    </div>
+
+                    <button type="button" class="connect-wallet-btn" id="connect-wallet-btn" onclick="connectNautilusWallet()">
+                        Connect Nautilus Wallet
+                    </button>
+
+                    <div id="payment-status" class="payment-status pending hidden">
+                        Waiting for payment confirmation...
+                    </div>
+
+                    <input type="hidden" name="nautilus_brick_amount" id="nautilus_brick_amount" value="0">
+                    <input type="hidden" name="blockchain_payment_confirmed" id="blockchain_payment_confirmed" value="no">
+                    <input type="hidden" name="blockchain_txid" id="blockchain_txid" value="">
                 </div>
 
                 <div class="form-group">
@@ -248,8 +460,12 @@
                             <label for="printer_aap">AAP IT</label>
                         </div>
                         <div class="radio-option">
-                            <input type="radio" value="RISO" name="printer" id="printer_riso" required>
-                            <label for="printer_riso">RISO Room Laser General Printer (11×17 single sided only)</label>
+                            <input type="radio" value="RISO" name="printer" id="printer_riso">
+                            <label for="printer_riso">RISO Room Laser General Printer (11x17 single sided only)</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" value="Sibley_235" name="printer" id="printer_sibley235">
+                            <label for="printer_sibley235">Sibley 235</label>
                         </div>
                     </div>
                 </div>
@@ -259,11 +475,11 @@
                     <div class="radio-group">
                         <div class="radio-option">
                             <input type="radio" value="85_11" name="papersize" id="paper_letter" required>
-                            <label for="paper_letter">8.5" × 11" (Letter)</label>
+                            <label for="paper_letter">8.5" x 11" (Letter)</label>
                         </div>
                         <div class="radio-option">
                             <input type="radio" value="11_17" name="papersize" id="paper_tabloid">
-                            <label for="paper_tabloid">11" × 17" (Tabloid)</label>
+                            <label for="paper_tabloid">11" x 17" (Tabloid)</label>
                         </div>
                     </div>
                 </div>
@@ -289,7 +505,7 @@
                             <input type="radio" value="single" name="duplex" id="duplex_single" required>
                             <label for="duplex_single">Single Sided</label>
                         </div>
-                        <div class="radio-option">
+                        <div class="radio-option" id="duplex_option">
                             <input type="radio" value="duplex" name="duplex" id="duplex_double">
                             <label for="duplex_double">Double Sided (Duplex)</label>
                         </div>
@@ -317,10 +533,228 @@
                     <div class="form-help">Secure print will email you a release link when you're at the printer</div>
                 </div>
 
-                <button type="submit" class="submit-button" name="Submit">Submit Print Job</button>
+                <!-- Price Estimate -->
+                <div class="price-estimate" id="price-estimate">
+                    <div class="price-label">Estimated Cost</div>
+                    <div class="price-value">$<span id="price-display">0.00</span></div>
+                </div>
+
+                <button type="submit" class="submit-button" id="submit-btn" name="Submit">Submit Print Job</button>
             </form>
         </div>
     </div>
+
+    <script>
+        // Pricing constants (per page)
+        const PRICING = {
+            '85_11': 0.10,
+            '11_17': 0.20
+        };
+        const BRICK_MULTIPLIER = 9; // USD to BRICK conversion
+
+        // Nautilus wallet address
+        const NAUTILUS_WALLET = '9gjX7hZQHzRG7iHC8yf2Hk9miPxd8QPrthSVMQuGSGwdXAgTBht';
+        const NAUTILUS_TOKEN_ID = '6ae91b0b309752896eb14025358889661da7e2078d89b4669dceef0a3d125a33';
+
+        let isNautilusPaymentRequired = false;
+        let paymentConfirmed = false;
+
+        // Initialize form handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            // Billing method change handler
+            const billingRadios = document.querySelectorAll('input[name="billingmethod"]');
+            billingRadios.forEach(radio => {
+                radio.addEventListener('change', handleBillingMethodChange);
+            });
+
+            // Price calculation handlers
+            const priceInputs = document.querySelectorAll('input[name="papersize"], input[name="copies"]');
+            priceInputs.forEach(input => {
+                input.addEventListener('change', calculatePrice);
+                input.addEventListener('input', calculatePrice);
+            });
+
+            // RISO printer restrictions
+            const printerRadios = document.querySelectorAll('input[name="printer"]');
+            printerRadios.forEach(radio => {
+                radio.addEventListener('change', handlePrinterChange);
+            });
+
+            // Form submission handler
+            document.getElementById('printForm').addEventListener('submit', handleFormSubmit);
+
+            // Initial calculation
+            calculatePrice();
+        });
+
+        function handleBillingMethodChange(e) {
+            const nautilusSection = document.getElementById('nautilus-section');
+            const submitBtn = document.getElementById('submit-btn');
+
+            if (e.target.value === 'Nautilus') {
+                nautilusSection.classList.add('active');
+                isNautilusPaymentRequired = true;
+                updateSubmitButton();
+                calculatePrice();
+            } else {
+                nautilusSection.classList.remove('active');
+                isNautilusPaymentRequired = false;
+                paymentConfirmed = false;
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Print Job';
+            }
+        }
+
+        function handlePrinterChange(e) {
+            const duplexOption = document.getElementById('duplex_option');
+            const duplexDouble = document.getElementById('duplex_double');
+            const duplexSingle = document.getElementById('duplex_single');
+            const paper11x17 = document.getElementById('paper_tabloid');
+            const paperLetter = document.getElementById('paper_letter');
+
+            if (e.target.value === 'RISO') {
+                // RISO: single sided only, 11x17 only
+                duplexDouble.disabled = true;
+                duplexSingle.checked = true;
+                paper11x17.checked = true;
+                paperLetter.disabled = true;
+            } else {
+                duplexDouble.disabled = false;
+                paperLetter.disabled = false;
+            }
+            calculatePrice();
+        }
+
+        function calculatePrice() {
+            const papersize = document.querySelector('input[name="papersize"]:checked');
+            const copiesInput = document.getElementById('copies');
+
+            let copies = parseInt(copiesInput.value) || 1;
+            if (copies < 1) copies = 1;
+            if (copies > 99) copies = 99;
+
+            let pricePerPage = 0.10; // default
+            if (papersize) {
+                pricePerPage = PRICING[papersize.value] || 0.10;
+            }
+
+            // Estimate: assume 1 page for now (actual calculated on server)
+            const estimatedPrice = pricePerPage * copies;
+
+            document.getElementById('price-display').textContent = estimatedPrice.toFixed(2);
+
+            // Update BRICK amount
+            const brickAmount = Math.ceil(estimatedPrice * BRICK_MULTIPLIER);
+            document.getElementById('brick-amount-display').textContent = brickAmount;
+            document.getElementById('nautilus_brick_amount').value = brickAmount;
+        }
+
+        function updateSubmitButton() {
+            const submitBtn = document.getElementById('submit-btn');
+
+            if (isNautilusPaymentRequired && !paymentConfirmed) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Complete Blockchain Payment First';
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Print Job';
+            }
+        }
+
+        async function connectNautilusWallet() {
+            const connectBtn = document.getElementById('connect-wallet-btn');
+            const paymentStatus = document.getElementById('payment-status');
+            const brickAmount = parseInt(document.getElementById('nautilus_brick_amount').value);
+
+            // Check if Nautilus wallet is installed
+            if (typeof ergoConnector === 'undefined' || !ergoConnector.nautilus) {
+                alert('Nautilus Wallet not detected. Please install the Nautilus browser extension.');
+                window.open('https://chrome.google.com/webstore/detail/nautilus-wallet/gjlmehlldlphhljhpnlddaodbjjcchai', '_blank');
+                return;
+            }
+
+            try {
+                connectBtn.disabled = true;
+                connectBtn.textContent = 'Connecting...';
+
+                // Connect to Nautilus
+                const connected = await ergoConnector.nautilus.connect();
+
+                if (!connected) {
+                    throw new Error('Failed to connect to Nautilus wallet');
+                }
+
+                paymentStatus.classList.remove('hidden');
+                paymentStatus.classList.remove('confirmed', 'error');
+                paymentStatus.classList.add('pending');
+                paymentStatus.textContent = 'Wallet connected. Preparing transaction...';
+
+                // Get the wallet API
+                const wallet = await ergoConnector.nautilus.getContext();
+
+                // Build and submit transaction
+                // This sends BRICK tokens to our payment address
+                const txRequest = {
+                    requests: [{
+                        address: NAUTILUS_WALLET,
+                        assets: [{
+                            tokenId: NAUTILUS_TOKEN_ID,
+                            amount: brickAmount.toString()
+                        }]
+                    }]
+                };
+
+                paymentStatus.textContent = 'Please confirm the transaction in your Nautilus wallet...';
+
+                // Sign and submit transaction
+                const unsignedTx = await wallet.sign_tx(txRequest);
+                const txId = await wallet.submit_tx(unsignedTx);
+
+                if (txId) {
+                    // Payment successful
+                    paymentConfirmed = true;
+                    document.getElementById('blockchain_payment_confirmed').value = 'yes';
+                    document.getElementById('blockchain_txid').value = txId;
+
+                    paymentStatus.classList.remove('pending');
+                    paymentStatus.classList.add('confirmed');
+                    paymentStatus.textContent = 'Payment confirmed! Transaction ID: ' + txId.substring(0, 16) + '...';
+
+                    connectBtn.textContent = 'Payment Complete';
+                    updateSubmitButton();
+                }
+
+            } catch (error) {
+                console.error('Nautilus payment error:', error);
+
+                paymentStatus.classList.remove('hidden', 'pending');
+                paymentStatus.classList.add('error');
+                paymentStatus.textContent = 'Payment failed: ' + error.message;
+
+                connectBtn.disabled = false;
+                connectBtn.textContent = 'Retry Payment';
+            }
+        }
+
+        function handleFormSubmit(e) {
+            // Check if Nautilus payment is required but not completed
+            if (isNautilusPaymentRequired && !paymentConfirmed) {
+                e.preventDefault();
+                alert('Please complete the blockchain payment before submitting your print job.');
+                return false;
+            }
+
+            // Validate 7-digit student ID
+            const idnumber = document.getElementById('idnumber').value;
+            if (!/^[0-9]{7}$/.test(idnumber)) {
+                e.preventDefault();
+                alert('Please enter a valid 7-digit student ID number.');
+                return false;
+            }
+
+            return true;
+        }
+    </script>
 
     <script>
         (function (w, d, s, o, f, js, fjs) {
@@ -334,7 +768,7 @@
             js.async = 1;
             fjs.parentNode.insertBefore(js, fjs);
         })(window, document, "script", "Botsonic", "https://d2nnr6irhfmb65.cloudfront.net/CDN/botsonic.min.js");
-        
+
         Botsonic("init", {
             serviceBaseUrl: "https://api.botsonic.ai",
             token: "5d39644a-70df-4740-a618-eb5229003d50",
