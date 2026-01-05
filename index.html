@@ -774,6 +774,43 @@
             }
         }
 
+        // Lock price-affecting fields after Nautilus payment is made
+        function lockPriceFields() {
+            // Lock copies field
+            const copiesInput = document.getElementById('copies');
+            copiesInput.disabled = true;
+            copiesInput.style.opacity = '0.6';
+            copiesInput.style.cursor = 'not-allowed';
+
+            // Lock paper size options
+            document.querySelectorAll('input[name="papersize"]').forEach(radio => {
+                radio.disabled = true;
+            });
+
+            // Lock duplex options
+            document.querySelectorAll('input[name="duplex"]').forEach(radio => {
+                radio.disabled = true;
+            });
+
+            // Lock printer options (affects nothing price-wise but prevents confusion)
+            document.querySelectorAll('input[name="printer"]').forEach(radio => {
+                radio.disabled = true;
+            });
+
+            // Lock file input - can't change file after payment
+            const fileInput = document.getElementById('file');
+            fileInput.disabled = true;
+            fileInput.style.opacity = '0.6';
+            fileInput.style.cursor = 'not-allowed';
+
+            // Add visual indicator that fields are locked
+            const priceEstimate = document.getElementById('price-estimate');
+            priceEstimate.innerHTML = '<div class="price-label">Amount Paid (Locked)</div>' +
+                '<div class="price-value">$<span id="price-display">' +
+                (document.getElementById('price-display').textContent) + '</span></div>' +
+                '<div style="font-size: 0.8rem; color: #4ade80; margin-top: 0.5rem;">Payment confirmed - options locked</div>';
+        }
+
         function connectNautilusWallet() {
             console.log('Connect wallet button clicked');
             const connectBtn = document.getElementById('connect-wallet-btn');
@@ -912,6 +949,10 @@
                         txId.substring(0, 20) + '...</a>';
 
                     document.getElementById('pay-section').style.display = 'none';
+
+                    // Lock all price-affecting fields after payment
+                    lockPriceFields();
+
                     updateSubmitButton();
                 })
                 .catch(function(err) {
