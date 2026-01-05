@@ -578,7 +578,8 @@
         let paymentConfirmed = false;
         let nautConnectedAddress = null;
         let nautBrickBalance = 0;
-        let detectedPageCount = 1; // Default to 1 page
+        let detectedPageCount = 0; // 0 means not yet counted
+        let pageCountComplete = false; // Track if page counting is done
 
         // Initialize form handlers
         document.addEventListener('DOMContentLoaded', function() {
@@ -607,20 +608,23 @@
             // Form submission handler
             document.getElementById('printForm').addEventListener('submit', handleFormSubmit);
 
-            // Initial calculation
+            // Initial calculation and button state
             calculatePrice();
+            updateSubmitButton();
         });
 
         // Handle PDF file selection and count pages
         async function handleFileSelect(e) {
             const file = e.target.files[0];
             const pageCountDisplay = document.getElementById('page-count-display');
-            const detectedPagesEl = document.getElementById('detected-pages');
+
+            // Reset state
+            pageCountComplete = false;
+            detectedPageCount = 0;
+            updateSubmitButton();
 
             if (!file) {
                 pageCountDisplay.style.display = 'none';
-                detectedPageCount = 1;
-                calculatePrice();
                 return;
             }
 
@@ -629,9 +633,7 @@
                 pageCountDisplay.style.display = 'block';
                 pageCountDisplay.style.borderColor = 'rgba(239, 68, 68, 0.5)';
                 pageCountDisplay.style.background = 'rgba(239, 68, 68, 0.1)';
-                detectedPagesEl.parentElement.innerHTML = '<span style="color: #f87171;">Error: Please select a PDF file</span>';
-                detectedPageCount = 1;
-                calculatePrice();
+                pageCountDisplay.innerHTML = '<span style="color: #f87171;">Error: Please select a PDF file</span>';
                 return;
             }
 
@@ -640,9 +642,7 @@
                 pageCountDisplay.style.display = 'block';
                 pageCountDisplay.style.borderColor = 'rgba(239, 68, 68, 0.5)';
                 pageCountDisplay.style.background = 'rgba(239, 68, 68, 0.1)';
-                detectedPagesEl.parentElement.innerHTML = '<span style="color: #f87171;">Error: File exceeds 25MB limit</span>';
-                detectedPageCount = 1;
-                calculatePrice();
+                pageCountDisplay.innerHTML = '<span style="color: #f87171;">Error: File exceeds 25MB limit</span>';
                 return;
             }
 
@@ -650,7 +650,7 @@
             pageCountDisplay.style.display = 'block';
             pageCountDisplay.style.borderColor = 'rgba(59, 130, 246, 0.3)';
             pageCountDisplay.style.background = 'rgba(59, 130, 246, 0.1)';
-            detectedPagesEl.parentElement.innerHTML = '<span style="color: #93c5fd;">Counting pages...</span>';
+            pageCountDisplay.innerHTML = '<span style="color: #93c5fd;">Counting pages...</span>';
 
             try {
                 // Read file as ArrayBuffer
@@ -659,20 +659,25 @@
                 // Load PDF with PDF.js
                 const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
                 detectedPageCount = pdf.numPages;
+                pageCountComplete = true;
 
                 // Update display
-                detectedPagesEl.parentElement.innerHTML = '<span style="color: #93c5fd;">Pages detected: <strong id="detected-pages">' + detectedPageCount + '</strong></span>';
+                pageCountDisplay.style.borderColor = 'rgba(34, 197, 94, 0.5)';
+                pageCountDisplay.style.background = 'rgba(34, 197, 94, 0.1)';
+                pageCountDisplay.innerHTML = '<span style="color: #4ade80;">✓ Pages detected: <strong>' + detectedPageCount + '</strong></span>';
 
                 // Recalculate price with actual page count
                 calculatePrice();
+                updateSubmitButton();
 
             } catch (error) {
                 console.error('Error reading PDF:', error);
-                pageCountDisplay.style.borderColor = 'rgba(245, 158, 11, 0.5)';
-                pageCountDisplay.style.background = 'rgba(245, 158, 11, 0.1)';
-                detectedPagesEl.parentElement.innerHTML = '<span style="color: #fbbf24;">Could not read PDF pages. Price estimate may vary.</span>';
-                detectedPageCount = 1;
-                calculatePrice();
+                pageCountDisplay.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+                pageCountDisplay.style.background = 'rgba(239, 68, 68, 0.1)';
+                pageCountDisplay.innerHTML = '<span style="color: #f87171;">Error: Could not read PDF. Please try a different file.</span>';
+                detectedPageCount = 0;
+                pageCountComplete = false;
+                updateSubmitButton();
             }
         }
 
@@ -742,7 +747,24 @@
 
         function updateSubmitButton() {
             const submitBtn = document.getElementById('submit-btn');
+            const connectWalletBtn = document.getElementById('connect-wallet-btn');
+            const payBtn = document.getElementById('pay-btn');
 
+            // First check: PDF must be loaded and pages counted
+            if (!pageCountComplete) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Select a PDF File First';
+                // Also disable Nautilus buttons if page count not complete
+                if (connectWalletBtn) connectWalletBtn.disabled = true;
+                if (payBtn) payBtn.disabled = true;
+                return;
+            }
+
+            // Re-enable Nautilus buttons once page count is complete
+            if (connectWalletBtn && !nautConnectedAddress) connectWalletBtn.disabled = false;
+            if (payBtn && nautConnectedAddress && !paymentConfirmed) payBtn.disabled = false;
+
+            // Second check: If Nautilus is selected, payment must be confirmed
             if (isNautilusPaymentRequired && !paymentConfirmed) {
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Complete Blockchain Payment First';
@@ -903,6 +925,13 @@
         }
 
         function handleFormSubmit(e) {
+            // Check if page count is complete
+            if (!pageCountComplete || detectedPageCount < 1) {
+                e.preventDefault();
+                alert('Please select a valid PDF file and wait for page counting to complete.');
+                return false;
+            }
+
             // Check if Nautilus payment is required but not completed
             if (isNautilusPaymentRequired && !paymentConfirmed) {
                 e.preventDefault();
@@ -922,23 +951,5 @@
         }
     </script>
 
-    <script>
-        (function (w, d, s, o, f, js, fjs) {
-            w["botsonic_widget"] = o;
-            w[o] = w[o] || function () {
-                (w[o].q = w[o].q || []).push(arguments);
-            };
-            (js = d.createElement(s)), (fjs = d.getElementsByTagName(s)[0]);
-            js.id = o;
-            js.src = f;
-            js.async = 1;
-            fjs.parentNode.insertBefore(js, fjs);
-        })(window, document, "script", "Botsonic", "https://d2nnr6irhfmb65.cloudfront.net/CDN/botsonic.min.js");
-
-        Botsonic("init", {
-            serviceBaseUrl: "https://api.botsonic.ai",
-            token: "5d39644a-70df-4740-a618-eb5229003d50",
-        });
-    </script>
 </body>
 </html>
