@@ -578,6 +578,7 @@
         let paymentConfirmed = false;
         let nautConnectedAddress = null;
         let nautBrickBalance = 0;
+        let nautBalanceSufficient = false; // Track if wallet has sufficient balance
         let detectedPageCount = 0; // 0 means not yet counted
         let pageCountComplete = false; // Track if page counting is done
 
@@ -762,7 +763,13 @@
 
             // Re-enable Nautilus buttons once page count is complete
             if (connectWalletBtn && !nautConnectedAddress) connectWalletBtn.disabled = false;
-            if (payBtn && nautConnectedAddress && !paymentConfirmed) payBtn.disabled = false;
+            if (payBtn && nautConnectedAddress && nautBalanceSufficient && !paymentConfirmed) {
+                // Ensure pay-section is visible and button is fully enabled
+                var paySection = document.getElementById('pay-section');
+                if (paySection) paySection.style.display = 'block';
+                payBtn.disabled = false;
+                payBtn.style.opacity = '1';
+            }
 
             // Second check: If Nautilus is selected, payment must be confirmed
             if (isNautilusPaymentRequired && !paymentConfirmed) {
@@ -877,12 +884,14 @@
 
                     // Show pay button if balance is sufficient
                     if (nautBrickBalance >= brickAmount && ergBalance >= 0.01) {
+                        nautBalanceSufficient = true;
                         document.getElementById('pay-section').style.display = 'block';
                         // Explicitly enable the pay button
                         var payBtn = document.getElementById('pay-btn');
                         payBtn.disabled = false;
                         payBtn.style.opacity = '1';
                     } else {
+                        nautBalanceSufficient = false;
                         paymentStatus.innerHTML += '<br><span style="color: #ef4444;">Insufficient balance!</span>';
                     }
 
