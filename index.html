@@ -407,62 +407,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Billing Method</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" value="Bursar" name="billingmethod" id="billing_bursar" required checked>
-                            <label for="billing_bursar">Bursar (Charge to Student Account)</label>
-                        </div>
-                        <div class="radio-option blockchain-option">
-                            <input type="radio" value="Nautilus" name="billingmethod" id="billing_nautilus">
-                            <label for="billing_nautilus">
-                                Nautilus Wallet
-                                <span class="blockchain-badge">BRICK Token</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-help">Select how you want to pay for your print job</div>
-                </div>
-
-                <!-- Nautilus Payment Section (Hidden by default) -->
-                <div id="nautilus-section">
-                    <div class="nautilus-header">
-                        <svg class="nautilus-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="12" cy="12" r="10" stroke="#f59e0b" stroke-width="2"/>
-                            <path d="M12 6v6l4 2" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        <span class="nautilus-title">Nautilus Blockchain Payment</span>
-                    </div>
-
-                    <div class="brick-label">Amount Due</div>
-                    <div class="brick-amount"><span id="brick-amount-display">0</span> BRICK</div>
-
-                    <div class="wallet-label">Treasury Address:</div>
-                    <div class="wallet-address" id="wallet-address">
-                        9gjX7hZQHzRG7iHC8yf2Hk9miPxd8QPrthSVMQuGSGwdXAgTBht
-                    </div>
-
-                    <button type="button" class="connect-wallet-btn" id="connect-wallet-btn" onclick="connectNautilusWallet()">
-                        Connect Nautilus Wallet
-                    </button>
-
-                    <div id="payment-status" class="payment-status pending hidden">
-                        Waiting for payment confirmation...
-                    </div>
-
-                    <!-- Pay button section (shown after wallet connection) -->
-                    <div id="pay-section" style="display: none; margin-top: 1rem;">
-                        <button type="button" id="pay-btn" onclick="nautSubmitPayment()" style="width: 100%; padding: 0.875rem 1.5rem; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-                            Pay Now
-                        </button>
-                    </div>
-
-                    <input type="hidden" name="nautilus_brick_amount" id="nautilus_brick_amount" value="0">
-                    <input type="hidden" name="blockchain_payment_confirmed" id="blockchain_payment_confirmed" value="no">
-                    <input type="hidden" name="blockchain_txid" id="blockchain_txid" value="">
-                </div>
-
-                <div class="form-group">
                     <label class="form-label">Printer Location</label>
                     <div class="radio-group">
                         <div class="radio-option">
@@ -528,6 +472,68 @@
                     <div class="form-help">Leave blank for 1 copy, maximum 99 copies</div>
                 </div>
 
+                <!-- Price Estimate -->
+                <div class="price-estimate" id="price-estimate">
+                    <div class="price-label">Estimated Cost</div>
+                    <div class="price-value">$<span id="price-display">0.00</span></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Billing Method</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" value="Bursar" name="billingmethod" id="billing_bursar" required checked>
+                            <label for="billing_bursar">Bursar (Charge to Student Account)</label>
+                        </div>
+                        <div class="radio-option blockchain-option">
+                            <input type="radio" value="Nautilus" name="billingmethod" id="billing_nautilus">
+                            <label for="billing_nautilus">
+                                Nautilus Wallet
+                                <span class="blockchain-badge">BRICK Token</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-help">Select how you want to pay for your print job</div>
+                </div>
+
+                <!-- Nautilus Payment Section (Hidden by default) -->
+                <div id="nautilus-section">
+                    <div class="nautilus-header">
+                        <svg class="nautilus-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="#f59e0b" stroke-width="2"/>
+                            <path d="M12 6v6l4 2" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span class="nautilus-title">Nautilus Blockchain Payment</span>
+                    </div>
+
+                    <div class="brick-label">Amount Due</div>
+                    <div class="brick-amount"><span id="brick-amount-display">0</span> BRICK</div>
+
+                    <div class="wallet-label">Treasury Address:</div>
+                    <div class="wallet-address" id="wallet-address">
+                        9gjX7hZQHzRG7iHC8yf2Hk9miPxd8QPrthSVMQuGSGwdXAgTBht
+                    </div>
+
+                    <button type="button" class="connect-wallet-btn" id="connect-wallet-btn" onclick="connectNautilusWallet()">
+                        Connect Nautilus Wallet
+                    </button>
+
+                    <div id="payment-status" class="payment-status pending hidden">
+                        Waiting for payment confirmation...
+                    </div>
+
+                    <!-- Pay button section (shown after wallet connection) -->
+                    <div id="pay-section" style="display: none; margin-top: 1rem;">
+                        <button type="button" id="pay-btn" onclick="nautSubmitPayment()" style="width: 100%; padding: 0.875rem 1.5rem; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                            Pay Now
+                        </button>
+                    </div>
+
+                    <input type="hidden" name="nautilus_brick_amount" id="nautilus_brick_amount" value="0">
+                    <input type="hidden" name="blockchain_payment_confirmed" id="blockchain_payment_confirmed" value="no">
+                    <input type="hidden" name="blockchain_txid" id="blockchain_txid" value="">
+                </div>
+
                 <div class="form-group">
                     <label class="form-label">Secure Print</label>
                     <div class="radio-group">
@@ -541,12 +547,6 @@
                         </div>
                     </div>
                     <div class="form-help">Secure print will email you a release link when you're at the printer</div>
-                </div>
-
-                <!-- Price Estimate -->
-                <div class="price-estimate" id="price-estimate">
-                    <div class="price-label">Estimated Cost</div>
-                    <div class="price-value">$<span id="price-display">0.00</span></div>
                 </div>
 
                 <button type="submit" class="submit-button" id="submit-btn" name="Submit">Submit Print Job</button>
