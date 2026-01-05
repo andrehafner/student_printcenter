@@ -58,6 +58,25 @@ $nautilus_brick_amount = $query->param("nautilus_brick_amount") || 0;
 $blockchain_payment_confirmed = $query->param("blockchain_payment_confirmed") || 'no';
 $blockchain_txid = $query->param("blockchain_txid") || '';
 
+# Validate required form fields
+my @missing_fields;
+push @missing_fields, 'printer' unless $printer;
+push @missing_fields, 'papersize' unless $papersize;
+push @missing_fields, 'duplex' unless $duplex;
+push @missing_fields, 'fit' unless $fit;
+push @missing_fields, 'secure' unless $secure;
+
+if (@missing_fields) {
+    print "Content-Type: text/html\n\n";
+    print "<html><body><div style='text-align:center;margin-top:50px;'>";
+    print "<h2>Error: Missing Form Data</h2>";
+    print "<p>The following required fields were not received: " . join(', ', @missing_fields) . "</p>";
+    print "<p>Please go back and ensure all options are selected.</p>";
+    print "<p><a href='javascript:history.back()'>Go Back</a></p>";
+    print "</div></body></html>";
+    exit;
+}
+
 # Validate 7-digit student ID
 if ($idnumber !~ /^[0-9]{7}$/) {
     print "Content-Type: text/html\n\n";
