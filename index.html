@@ -878,9 +878,16 @@
                     // Show pay button if balance is sufficient
                     if (nautBrickBalance >= brickAmount && ergBalance >= 0.01) {
                         document.getElementById('pay-section').style.display = 'block';
+                        // Explicitly enable the pay button
+                        var payBtn = document.getElementById('pay-btn');
+                        payBtn.disabled = false;
+                        payBtn.style.opacity = '1';
                     } else {
                         paymentStatus.innerHTML += '<br><span style="color: #ef4444;">Insufficient balance!</span>';
                     }
+
+                    // Update button states now that wallet is connected
+                    updateSubmitButton();
                 })
                 .catch(function(err) {
                     console.error('Wallet connection error:', err);
