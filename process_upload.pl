@@ -140,8 +140,23 @@ if ($secure eq 'yes' && $printer eq "RISO") {
     $subDIR = "$printer/single/11_17/$fit/$netid$hour$minute$copiesword$copies$pagerange$pages$pagerangeend$fileextention";
 }
 
+if (!$file || $file eq '') {
+    print "Content-Type: text/html\n\n";
+    print "<html><body><div style='text-align:center;margin-top:50px;'>";
+    print "<h2>Error: No File Uploaded</h2>";
+    print "<p>The file upload was not received. Please try again.</p>";
+    print "<p><a href='javascript:history.back()'>Go Back</a></p>";
+    print "</div></body></html>";
+    exit;
+}
+
 if ($file !~ /\.pdf$/i) {
-    print "\n\n\n\n\n\t\t\t$file is not a PDF type file. Please hit your back button and upload a PDF!\n";
+    print "Content-Type: text/html\n\n";
+    print "<html><body><div style='text-align:center;margin-top:50px;'>";
+    print "<h2>Error: Invalid File Type</h2>";
+    print "<p>'$file' is not a PDF file. Please upload a PDF file.</p>";
+    print "<p><a href='javascript:history.back()'>Go Back</a></p>";
+    print "</div></body></html>";
     exit;
 }
 
