@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AAP IT Student Web Print | Cornell University</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        .cornell-logo {
+            color: #b91c1c;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .main-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .form-container {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .form-help {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px dashed rgba(71, 85, 105, 0.5);
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"]:hover {
+            border-color: #3b82f6;
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            border-radius: 8px;
+            color: #f8fafc;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .radio-option:hover {
+            background: rgba(15, 23, 42, 0.6);
+            border-color: #3b82f6;
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 0.75rem;
+            width: 18px;
+            height: 18px;
+            accent-color: #3b82f6;
+        }
+
+        .radio-option label {
+            cursor: pointer;
+            flex: 1;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .alert {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            color: #fca5a5;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .submit-button:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.2);
+        }
+
+        .coming-soon {
+            opacity: 0.6;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .main-title {
+                font-size: 2rem;
+            }
+            
+            .form-container {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="cornell-logo">Cornell University</div>
+            <h1 class="main-title">AAP IT Student Web Print</h1>
+            <p class="subtitle">For AAP Students Only</p>
+        </div>
+
+        <div class="form-container">
+            <div class="alert">
+                <div class="alert-title">Important Notice</div>
+                This system will ONLY accept PDF files with a maximum size of 25MB.
+            </div>
+
+            <form action="process_upload.pl" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label class="form-label" for="file">Upload File</label>
+                    <input type="file" name="file" id="file" accept=".pdf" required>
+                    <div class="form-help">PDF files only, maximum 100MB</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="idnumber">Student ID Number</label>
+                    <input type="text" name="idnumber" id="idnumber" maxlength="7" pattern="[0-9]{7}" required>
+                    <div class="form-help">Enter your 7-digit Cornell ID number</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Printer Location</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" value="AAP_IT" name="printer" id="printer_aap" required>
+                            <label for="printer_aap">AAP IT</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" value="RISO" name="printer" id="printer_riso" required>
+                            <label for="printer_riso">RISO Room Laser General Printer (11×17 single sided only)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Paper Size</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" value="85_11" name="papersize" id="paper_letter" required>
+                            <label for="paper_letter">8.5" × 11" (Letter)</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" value="11_17" name="papersize" id="paper_tabloid">
+                            <label for="paper_tabloid">11" × 17" (Tabloid)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Document Scaling</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" value="fit" name="fit" id="scale_fit" required>
+                            <label for="scale_fit">Fit to Page</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" value="original" name="fit" id="scale_original">
+                            <label for="scale_original">Original Size</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Print Mode</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" value="single" name="duplex" id="duplex_single" required>
+                            <label for="duplex_single">Single Sided</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" value="duplex" name="duplex" id="duplex_double">
+                            <label for="duplex_double">Double Sided (Duplex)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="copies">Number of Copies</label>
+                    <input type="text" name="copies" id="copies" maxlength="2" pattern="[0-9]{1,2}" placeholder="1">
+                    <div class="form-help">Leave blank for 1 copy, maximum 99 copies</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Secure Print</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" value="no" name="secure" id="secure_no" required>
+                            <label for="secure_no">No, send my job immediately</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" value="yes" name="secure" id="secure_yes" disabled>
+                            <label for="secure_yes" class="coming-soon">Yes, secure print (Coming Soon)</label>
+                        </div>
+                    </div>
+                    <div class="form-help">Secure print will email you a release link when you're at the printer</div>
+                </div>
+
+                <button type="submit" class="submit-button" name="Submit">Submit Print Job</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        (function (w, d, s, o, f, js, fjs) {
+            w["botsonic_widget"] = o;
+            w[o] = w[o] || function () {
+                (w[o].q = w[o].q || []).push(arguments);
+            };
+            (js = d.createElement(s)), (fjs = d.getElementsByTagName(s)[0]);
+            js.id = o;
+            js.src = f;
+            js.async = 1;
+            fjs.parentNode.insertBefore(js, fjs);
+        })(window, document, "script", "Botsonic", "https://d2nnr6irhfmb65.cloudfront.net/CDN/botsonic.min.js");
+        
+        Botsonic("init", {
+            serviceBaseUrl: "https://api.botsonic.ai",
+            token: "5d39644a-70df-4740-a618-eb5229003d50",
+        });
+    </script>
+</body>
+</html>
